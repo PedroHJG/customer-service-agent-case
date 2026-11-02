@@ -1,0 +1,19 @@
+services:
+  postgres:
+    # Postgres com a extensão pgvector: dados da loja, embeddings das políticas e memória das conversas
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: emporio
+      POSTGRES_PASSWORD: emporio
+      POSTGRES_DB: emporio
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U emporio"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  pgdata:
