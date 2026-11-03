@@ -9,6 +9,7 @@ from typing import Any
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph.state import CompiledStateGraph
 
+from app.agents.prompts import strip_user_metadata
 from app.agents.tools import TOOLS
 from app.models.schemas import ui_message
 from app.services.llm_service import visible_blocks
@@ -46,7 +47,8 @@ def to_ui_messages(chat_id: str, messages: list[dict[str, Any]]) -> list[dict[st
 
         if message["role"] == "user" and isinstance(content, str):
             flush_assistant()
-            ui_messages.append(ui_message(f"{chat_id}-{len(ui_messages)}", "user", [{"type": "text", "text": content}]))
+            text_part = {"type": "text", "text": strip_user_metadata(content)}
+            ui_messages.append(ui_message(f"{chat_id}-{len(ui_messages)}", "user", [text_part]))
 
         elif message["role"] == "user":
             # Resultados de tools: completam as partes de tool abertas no turno do assistente

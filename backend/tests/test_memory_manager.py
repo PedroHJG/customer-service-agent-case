@@ -5,7 +5,7 @@ from app.controllers.memory_manager import to_ui_messages
 
 def test_converte_turno_com_tool_e_guardrail_em_uimessages():
     history = [
-        {"role": "user", "content": "Quanto custa o Takamine GD20?"},
+        {"role": "user", "content": "[Enviada em sábado, 21/03/2026 às 10:00 (horário de Campo Grande)]\nQuanto custa o Takamine GD20?"},
         {
             "role": "assistant",
             "content": [
@@ -30,6 +30,7 @@ def test_converte_turno_com_tool_e_guardrail_em_uimessages():
     messages = to_ui_messages("chat", history)
 
     assert [m["role"] for m in messages] == ["user", "assistant", "user", "assistant"]
+    assert messages[0]["parts"][0]["text"] == "Quanto custa o Takamine GD20?"
     first_answer = [p for p in messages[1]["parts"] if p["type"] != "step-start"]
     assert first_answer[0] == {
         "type": "tool-buscar_produtos",

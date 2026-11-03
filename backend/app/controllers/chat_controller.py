@@ -9,6 +9,7 @@ from langgraph.errors import GraphRecursionError
 from langgraph.graph.state import CompiledStateGraph
 
 from app.agents.graph import RECURSION_LIMIT
+from app.agents.prompts import format_user_message
 from app.controllers.memory_manager import thread_config
 from app.services import ui_stream
 
@@ -24,7 +25,9 @@ async def stream_chat(graph: CompiledStateGraph, chat_id: str, text: str) -> Asy
     try:
         # stream_mode="custom" entrega exatamente o que os nós escreveram com get_stream_writer()
         async for event in graph.astream(
-            {"messages": [{"role": "user", "content": text}]}, config=config, stream_mode="custom"
+            {"messages": [{"role": "user", "content": format_user_message(text)}]},
+            config=config,
+            stream_mode="custom",
         ):
             yield ui_stream.sse(event)
     except GraphRecursionError:
