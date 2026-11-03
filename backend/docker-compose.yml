@@ -7,7 +7,8 @@ services:
       POSTGRES_PASSWORD: emporio
       POSTGRES_DB: emporio
     ports:
-      - "5432:5432"
+      # 5433 no host para não colidir com um Postgres instalado localmente na porta padrão
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
