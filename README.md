@@ -99,7 +99,7 @@ Para ver o circuit breaker e o resumo de histórico acontecendo rápido pela int
 
 ### Fluxo planejado
 
-![Fluxo de arquitetura](docs/arquitetura.png)
+![Fluxo de arquitetura](docs/arquitetura-de-fluxo.png)
 
 <!-- ✏️ PREENCHER: exporte o diagrama "Case-Artefact-Archtecture" como PNG e salve em docs/arquitetura.png -->
 
@@ -304,9 +304,9 @@ As conversas em [`docs/conversas/`](docs/conversas/) foram **geradas pelo agente
 
 <!-- ✏️ PREENCHER: tire os prints rodando os mesmos cenários na UI e salve em docs/prints/ com estes nomes -->
 
-| Consulta de pedido com política         | Circuit breaker                                     |
-| --------------------------------------- | --------------------------------------------------- |
-| ![Devolução](docs/prints/devolucao.png) | ![Circuit breaker](docs/prints/circuit-breaker.png) |
+| Consulta de pedido com política                | Circuit breaker                                       |
+| ---------------------------------------------- | ----------------------------------------------------- |
+| ![Devolução](docs/prints/caso-nao-trivial.png) | ![Circuit breaker](docs/prints/circuit-breaker-2.png) |
 
 ---
 
