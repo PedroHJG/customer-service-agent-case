@@ -7,7 +7,7 @@ que define o texto do badge "Consultando..." exibido durante a chamada.
 
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
@@ -18,16 +18,36 @@ class ToolInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
+# Mesmos nomes da tabela categories (data/... - categories.csv); enum impede o modelo de inventar categoria
+Categoria = Literal[
+    "Guitarras",
+    "Baixos",
+    "Baterias e Percussão",
+    "Teclados e Pianos",
+    "Violões",
+    "Instrumentos de Sopro (Madeiras)",
+    "Instrumentos de Sopro (Metais)",
+    "Cordas Orquestrais",
+    "Ukuleles",
+]
+
+
 class BuscarProdutosInput(ToolInput):
-    termo: str | None = Field(None, description="Nome, marca ou modelo. Ex.: 'Takamine GD20', 'violão'")
-    categoria: str | None = Field(None, description="Categoria do instrumento. Ex.: 'violão', 'teclado'")
-    preco_maximo: float | None = Field(None, description="Preço máximo em reais")
-    apenas_disponiveis: bool = Field(True, description="Se true, retorna só produtos com estoque")
+    termo: str | None = Field(
+        None,
+        description="Marca, modelo ou característica, sem o tipo do instrumento. "
+        "Ex.: 'Takamine GD20', 'nylon', 'elétrico', '7 cordas', 'iniciante'",
+    )
+    categoria: Categoria | None = Field(None, description="Tipo do instrumento")
+    preco_maximo: float | None = Field(None, description="Preço máximo em reais (considera promoções)")
+    apenas_disponiveis: bool = Field(
+        True, description="true: só produtos à venda com estoque. Use false para checar um modelo específico"
+    )
 
 
 class ConsultarPedidoInput(ToolInput):
     numero_pedido: str = Field(description="Número do pedido informado pelo cliente")
-    email: str = Field(description="E-mail do cadastro, usado para confirmar a identidade do cliente")
+    email_ou_telefone: str = Field(description="E-mail ou telefone do cadastro, para confirmar a identidade")
 
 
 class ConsultarPoliticasInput(ToolInput):
@@ -68,8 +88,9 @@ async def _buscar_produtos(args: BuscarProdutosInput) -> Any:
 
 
 async def _consultar_pedido(args: ConsultarPedidoInput) -> Any:
-    pedido = await store_repository.get_order_status(args.numero_pedido, args.email)
-    return pedido or {"erro": "Pedido não encontrado para esse número e e-mail"}
+    pedido = await store_repository.get_order_status(args.numero_pedido, args.email_ou_telefone)
+    # Mesma resposta para "não existe" e "não é seu": não revela a existência de pedidos de terceiros
+    return pedido or {"erro": "Pedido não encontrado para esse número e identificação"}
 
 
 async def _consultar_politicas(args: ConsultarPoliticasInput) -> Any:
@@ -96,8 +117,8 @@ TOOLS: dict[str, Tool] = {
         ),
         Tool(
             "consultar_pedido",
-            "Consulta o status de um pedido. Exige número do pedido e e-mail do cadastro; "
-            "peça os dois ao cliente antes de chamar.",
+            "Consulta status, itens, pagamento, rastreio e prazos de um pedido. Exige o número do pedido e "
+            "o e-mail ou telefone do cadastro; peça os dois ao cliente antes de chamar.",
             ConsultarPedidoInput,
             _consultar_pedido,
         ),

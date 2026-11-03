@@ -1,3 +1,4 @@
+from datetime import date
 from functools import lru_cache
 from pathlib import Path
 
@@ -14,7 +15,7 @@ class Settings(BaseSettings):
     claude_effort: str = "medium"
     claude_max_tokens: int = 64000
 
-    database_url: str = "postgresql://emporio:emporio@localhost:5432/emporio"
+    database_url: str = "postgresql://emporio:emporio@localhost:5433/emporio"
     frontend_origin: str = "http://localhost:3000"
 
     data_dir: Path = BASE_DIR / "data"
@@ -23,6 +24,11 @@ class Settings(BaseSettings):
 
     # Limite de tamanho da mensagem do cliente (proteção de custo e de abuso)
     max_user_message_chars: int = 2000
+
+    timezone: str = "America/Campo_Grande"
+    # Data simulada para demonstração: os pedidos dos CSVs são de out/2025 a mar/2026, então com a
+    # data real todos os prazos de troca já teriam vencido. Vazio = data real.
+    reference_date: date | None = None
 
 
 @lru_cache
