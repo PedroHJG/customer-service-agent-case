@@ -5,7 +5,7 @@ Protótipo de um agente de atendimento por mensagens para a **Empório da Músic
 - **Backend (o agente):** Python, FastAPI e LangGraph, com modelos Claude e Postgres + pgvector.
 - **Frontend:** uma interface no estilo WhatsApp, com várias conversas isoladas, em Next.js.
 
-![Interface do chat](docs/prints/interface.png)
+![Interface do chat](docs/prints/UI.png)
 
 <!-- ✏️ PREENCHER: salve um print da tela do chat em docs/prints/interface.png -->
 
