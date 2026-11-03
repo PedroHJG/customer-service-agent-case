@@ -70,7 +70,8 @@ async def agent_node(state: AgentState) -> dict[str, Any]:
         content = [b for b in content if b["type"] != "tool_use"]
 
     write(ui_stream.finish_step())
-    return {"messages": [{"role": "assistant", "content": content}], "stop_reason": final.stop_reason}
+    message = {"role": "assistant", "content": content}
+    return {"messages": [message], "history": [message], "stop_reason": final.stop_reason}
 
 
 def _is_silent(tool_name: str) -> bool:

@@ -25,7 +25,7 @@ async def stream_chat(graph: CompiledStateGraph, chat_id: str, text: str) -> Asy
     try:
         # stream_mode="custom" entrega exatamente o que os nós escreveram com get_stream_writer()
         async for event in graph.astream(
-            {"messages": [{"role": "user", "content": format_user_message(text)}]},
+            {"incoming": format_user_message(text)},
             config=config,
             stream_mode="custom",
         ):

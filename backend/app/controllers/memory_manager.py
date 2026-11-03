@@ -9,7 +9,7 @@ from typing import Any
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph.state import CompiledStateGraph
 
-from app.agents.prompts import strip_user_metadata
+from app.agents.prompts import CIRCUIT_OPEN_REASON, strip_user_metadata
 from app.agents.tools import TOOLS
 from app.models.schemas import ui_message
 from app.services.llm_service import visible_blocks
@@ -21,7 +21,10 @@ def thread_config(chat_id: str) -> dict[str, Any]:
 
 async def get_history(graph: CompiledStateGraph, chat_id: str) -> list[dict[str, Any]]:
     snapshot = await graph.aget_state(thread_config(chat_id))
-    return to_ui_messages(chat_id, snapshot.values.get("messages", []))
+    # `history` guarda tudo (inclusive respostas padrão do circuit breaker); `messages` pode ter virado resumo.
+    # Conversas criadas antes do campo `history` existir caem no transcript.
+    values = snapshot.values
+    return to_ui_messages(chat_id, values.get("history") or values.get("messages", []))
 
 
 async def delete_history(checkpointer: BaseCheckpointSaver, chat_id: str) -> None:
@@ -64,7 +67,10 @@ def to_ui_messages(chat_id: str, messages: list[dict[str, Any]]) -> list[dict[st
         else:
             assistant_parts.append({"type": "step-start"})
             for block in visible_blocks(content):
-                if block["type"] == "text":
+                if block["type"] == "circuit_breaker":
+                    assistant_parts.append({"type": "data-guardrail", "data": {"reason": CIRCUIT_OPEN_REASON}})
+                    assistant_parts.append({"type": "text", "text": block["text"], "state": "done"})
+                elif block["type"] == "text":
                     assistant_parts.append({"type": "text", "text": block["text"], "state": "done"})
                 elif block["type"] == "tool_use" and block["name"] in TOOLS and TOOLS[block["name"]].silent:
                     reason = block["input"].get("motivo", "")

@@ -40,7 +40,8 @@ async def tools_node(state: AgentState) -> dict[str, Any]:
 
     # Todos os resultados voltam numa única mensagem user (mantém o Claude fazendo chamadas paralelas)
     results = await asyncio.gather(*(run(block) for block in tool_uses))
-    return {"messages": [{"role": "user", "content": list(results)}]}
+    message = {"role": "user", "content": list(results)}
+    return {"messages": [message], "history": [message]}
 
 
 def _tool_result(tool_use_id: str, output: Any, is_error: bool = False) -> dict[str, Any]:
